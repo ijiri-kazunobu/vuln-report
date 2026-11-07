@@ -22,3 +22,14 @@ urgent = df[(df["深刻度"] == "CRITICAL") | (df["深刻度"] == "HIGH")]
 urgent = urgent.sort_values("スコア", ascending=False)
 print(urgent[["CVE番号", "公開日", "深刻度", "スコア"]])
 print(f"→ {len(urgent)} 件")
+
+summary = df["深刻度"].value_counts().reset_index()
+summary.columns = ["深刻度", "件数"]
+
+with pd.ExcelWriter("report.xlsx") as writer:
+    summary.to_excel(writer, sheet_name="サマリー", index=False)
+    urgent.to_excel(writer, sheet_name="要対応", index=False)
+    df.to_excel(writer, sheet_name="全件", index=False)
+
+print()
+print("📊 report.xlsx を作成しました")
