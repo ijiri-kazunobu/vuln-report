@@ -1,4 +1,5 @@
 import pandas as pd
+from openpyxl.styles import Font, PatternFill
 
 df = pd.read_csv("data/wordpress.csv", encoding="utf-8-sig")
 
@@ -26,10 +27,26 @@ print(f"→ {len(urgent)} 件")
 summary = df["深刻度"].value_counts().reset_index()
 summary.columns = ["深刻度", "件数"]
 
+COLUMN_WIDTHS = {
+    "サマリー": {"A": 15, "B": 10},
+    "要対応": {"A": 18, "B": 12, "C": 12, "D": 8, "E": 80, "F": 50},
+     "全件": {"A": 18, "B": 12, "C": 12, "D": 8, "E": 80, "F": 50},
+}
+
 with pd.ExcelWriter("report.xlsx") as writer:
     summary.to_excel(writer, sheet_name="サマリー", index=False)
     urgent.to_excel(writer, sheet_name="要対応", index=False)
     df.to_excel(writer, sheet_name="全件", index=False)
 
+    for sheet_name, ws in writer.sheets.items():
+        for cell in ws[1]:
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill("solid", fgColor="1F4E78")
+
+        for column, width in COLUMN_WIDTHS[sheet_name].items():
+            ws.column_dimensions[column].width = width
+
+        ws.freeze_panes = "A2"
+    
 print()
 print("📊 report.xlsx を作成しました")
