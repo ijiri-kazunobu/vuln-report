@@ -2,6 +2,8 @@ import pandas as pd
 from openpyxl.chart import BarChart, Reference
 from openpyxl.styles import Font, PatternFill
 
+SEVERITY_ORDER = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "未評価"]
+
 df = pd.read_csv("data/wordpress.csv", encoding="utf-8-sig")
 
 print("=== 最初の5行 ===")
@@ -25,7 +27,7 @@ urgent = urgent.sort_values("スコア", ascending=False)
 print(urgent[["CVE番号", "公開日", "深刻度", "スコア"]])
 print(f"→ {len(urgent)} 件")
 
-summary = df["深刻度"].value_counts().reset_index()
+summary = df["深刻度"].value_counts().reindex(SEVERITY_ORDER, fill_value=0).reset_index()
 summary.columns = ["深刻度", "件数"]
 
 COLUMN_WIDTHS = {
