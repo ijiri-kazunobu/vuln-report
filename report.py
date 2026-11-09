@@ -1,4 +1,5 @@
 import pandas as pd
+from openpyxl.chart import BarChart, Reference
 from openpyxl.styles import Font, PatternFill
 
 df = pd.read_csv("data/wordpress.csv", encoding="utf-8-sig")
@@ -47,6 +48,18 @@ with pd.ExcelWriter("report.xlsx") as writer:
             ws.column_dimensions[column].width = width
 
         ws.freeze_panes = "A2"
+
+    ws = writer.sheets["サマリー"]
+    chart = BarChart()
+    chart.title = "深刻度ごとの件数"
+    chart.y_axis.title = "件数"
+
+    data = Reference(ws, min_col=2, min_row=1, max_row=len(summary) + 1)
+    categories = Reference(ws, min_col=1, min_row=2, max_row=len(summary) + 1)
+
+    chart.add_data(data, titles_from_data=True)
+    chart.set_categories(categories)
+    ws.add_chart(chart, "D2")
     
 print()
 print("📊 report.xlsx を作成しました")
